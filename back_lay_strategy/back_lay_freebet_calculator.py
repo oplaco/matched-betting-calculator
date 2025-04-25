@@ -1,14 +1,14 @@
 from typing import Dict, Any
-from back_lay_strategy.back_lay_base_calculator import BackLayCalculator
-from bet import Bet
+from base import CalculatorBase
+from bet import BackLeyGroup
 
-class BackLayFrebetCalculator(BackLayCalculator):
-    def __init__(self, back_bet: Bet, lay_bet: Bet):
-        super().__init__(back_bet, lay_bet)
+class BackLayFrebetCalculator(CalculatorBase):
+    def __init__(self,back_ley_group:BackLeyGroup):
+        self.back_ley_group = back_ley_group
 
     def calculate_stake(self) -> Dict[str, Any]:
-        lb = self.lay_bet
-        bb = self.back_bet
+        bb = self.back_ley_group.back_bet
+        lb = self.back_ley_group.lay_bet
         
         raw_lay_stake = (bb.stake * (bb.odds - 1.0) * (100.0 - bb.fee)) / (100.0 * lb.odds - lb.fee)
         lb.stake = round(raw_lay_stake,2)

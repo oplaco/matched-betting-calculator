@@ -1,5 +1,5 @@
 import unittest
-from bet import Bet
+from bet import Bet, BackLeyGroup
 from back_lay_strategy.back_lay_normal_calculator import BackLayNormalCalculator
 
 class TestBackLayNormalCalculator(unittest.TestCase):
@@ -7,8 +7,9 @@ class TestBackLayNormalCalculator(unittest.TestCase):
     def test_calculate_lay_stake_basic(self):
         back_bet = Bet(odds=2.0, stake=100.0, fee=5.0)
         lay_bet = Bet(odds=2.1, fee=20.0)
-
-        calc = BackLayNormalCalculator(back_bet, lay_bet)
+        back_lay_group = BackLeyGroup(back_bet,lay_bet)
+        
+        calc = BackLayNormalCalculator(back_lay_group)
         result = calc.calculate_stake()
 
         expected_lay_stake = 100
@@ -21,8 +22,9 @@ class TestBackLayNormalCalculator(unittest.TestCase):
     def test_calculate_lay_stake_no_fees(self):
         back_bet = Bet(odds=3.0, stake=50, fee=0.0)
         lay_bet = Bet(odds=2.8, fee=0.0)
+        back_lay_group = BackLeyGroup(back_bet,lay_bet)
 
-        calc = BackLayNormalCalculator(back_bet, lay_bet)
+        calc = BackLayNormalCalculator(back_lay_group)
         result = calc.calculate_stake()
 
         expected_lay_stake = 53.57
