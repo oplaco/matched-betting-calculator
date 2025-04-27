@@ -14,7 +14,7 @@ class Bet:
             raise ValueError("Stake must be > 0 if provided.")
         if not (0 <= self.fee <= 100):
             raise ValueError("Fee must be between 0 and 100.")
-        
+    
 class BackLeyGroup:
     """Represents the Back bet - Lay Bet group used in the Back-Ley strategy.
     """
