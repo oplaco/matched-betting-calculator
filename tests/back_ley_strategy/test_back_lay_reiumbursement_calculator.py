@@ -8,9 +8,9 @@ class TestBackLayFreebetCalculator(unittest.TestCase):
         back_bet = Bet(odds=5.0, stake=100, fee=5.0)
         lay_bet = Bet(odds=5.5, fee=2.0)
         back_lay_group = BackLeyGroup(back_bet,lay_bet)
-        reiumbursement = 70
+        reimbursement = 70
 
-        calc = BackLayReimbursementCalculator(back_lay_group,reiumbursement)
+        calc = BackLayReimbursementCalculator(back_lay_group,reimbursement)
         result = calc.calculate_stake()
 
         expected_lay_stake = 73.91
@@ -23,9 +23,9 @@ class TestBackLayFreebetCalculator(unittest.TestCase):
         back_bet = Bet(odds=3.0, stake=50, fee=0.0)
         lay_bet = Bet(odds=2.8, fee=0.0)
         back_lay_group = BackLeyGroup(back_bet,lay_bet)
-        reiumbursement = 25
+        reimbursement = 25
 
-        calc = BackLayReimbursementCalculator(back_lay_group,reiumbursement)
+        calc = BackLayReimbursementCalculator(back_lay_group,reimbursement)
         result = calc.calculate_stake()
 
         expected = 44.64
