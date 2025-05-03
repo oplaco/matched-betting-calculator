@@ -1,6 +1,6 @@
 import unittest
 from bet import Bet, BackLeyGroup
-from back_lay_strategy.back_lay_reimbursement_calculator import BackLayReimbursementCalculator
+from back_lay_strategy.back_lay_simple_calculator import BackLayReimbursementCalculator
 
 class TestBackLayFreebetCalculator(unittest.TestCase):
 

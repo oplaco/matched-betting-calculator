@@ -1,6 +1,6 @@
 import unittest
 from bet import Bet, BackLeyGroup
-from back_lay_strategy.back_lay_freebet_calculator import BackLayFrebetCalculator
+from back_lay_strategy.back_lay_simple_calculator import BackLayFreebetCalculator
 
 class TestBackLayFreebetCalculator(unittest.TestCase):
 
@@ -9,7 +9,7 @@ class TestBackLayFreebetCalculator(unittest.TestCase):
         lay_bet = Bet(odds=5.5, fee=2.0)
         back_lay_group = BackLeyGroup(back_bet,lay_bet)
 
-        calc = BackLayFrebetCalculator(back_lay_group)
+        calc = BackLayFreebetCalculator(back_lay_group)
         result = calc.calculate_stake()
 
         expected_lay_stake = 69.34
@@ -23,7 +23,7 @@ class TestBackLayFreebetCalculator(unittest.TestCase):
         lay_bet = Bet(odds=2.8, fee=0.0)
         back_lay_group = BackLeyGroup(back_bet,lay_bet)
 
-        calc = BackLayFrebetCalculator(back_lay_group)
+        calc = BackLayFreebetCalculator(back_lay_group)
         result = calc.calculate_stake()
 
         expected = 35.71

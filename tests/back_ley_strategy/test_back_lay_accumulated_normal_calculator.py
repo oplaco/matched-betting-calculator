@@ -1,6 +1,6 @@
 import unittest
 from bet import Bet, BackLeyGroup
-from back_lay_strategy.accumulated.back_lay_accumulated_calculator import BackLayAccumulatedNormalCalculator, BackLayAccumulatedFreebetCalculator, BackLayAccumulatedReimbursementCalculator
+from back_lay_strategy.back_lay_accumulated_calculator import BackLayAccumulatedNormalCalculator, BackLayAccumulatedFreebetCalculator, BackLayAccumulatedReimbursementCalculator
 
 class TestBackLayAccumulatedCalculator(unittest.TestCase):
     def setUp(self):

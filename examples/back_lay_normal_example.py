@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from bet import Bet, BackLeyGroup
-from back_lay_strategy.back_lay_normal_calculator import BackLayNormalCalculator
+from back_lay_strategy.back_lay_simple_calculator import BackLayNormalCalculator
 
 def main():
     back_bet = Bet(odds=2.0, stake=100, fee=5.0)  # 5% fee

@@ -1,6 +1,6 @@
 import unittest
 from bet import Bet, BackLeyGroup
-from back_lay_strategy.back_lay_rollover_calculator import BackLayRolloverCalculator
+from back_lay_strategy.back_lay_simple_calculator import BackLayRolloverCalculator
 
 class TestBackLayFreebetCalculator(unittest.TestCase):
 
