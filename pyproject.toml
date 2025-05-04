@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "matched_betting_calculator"
+version = "0.1.0"
+description = "Matched betting calculators using back-lay and dutching strategies"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+  { name = "Gabriel Alfonsín Espín", email = "gabriel.alfonsin.espin@gmail.com" }
+]
+dependencies = [
+  "sympy>=1.14"
+]
+
+[project.urls]
+Homepage = "https://github.com/oplaco/matched-betting-calculator"

@@ -1,6 +1,6 @@
 import unittest
 from bet import Bet, DutchingGroup
-from dutching_strategy.dutching_simple_calculator import DutchingReimbursementCalculator
+from matched_betting_calculator.dutching_strategy.dutching_simple_calculator import DutchingReimbursementCalculator
 
 class TestDutchingReimbursementCalculator(unittest.TestCase):
 

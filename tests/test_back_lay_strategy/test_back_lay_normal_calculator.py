@@ -1,6 +1,6 @@
 import unittest
 from bet import Bet, BackLeyGroup
-from back_lay_strategy.back_lay_simple_calculator import BackLayNormalCalculator
+from matched_betting_calculator.back_lay_strategy.back_lay_simple_calculator import BackLayNormalCalculator
 
 class TestBackLayNormalCalculator(unittest.TestCase):
 
