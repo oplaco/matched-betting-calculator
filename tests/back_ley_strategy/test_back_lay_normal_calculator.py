@@ -14,8 +14,11 @@ class TestBackLayNormalCalculator(unittest.TestCase):
 
         expected_lay_stake = 100
         expected_risk = 110
+        expected_balance = -20
+        
         self.assertAlmostEqual(result["lay_stake"], expected_lay_stake, delta=0.01)
         self.assertAlmostEqual(result["risk"], expected_risk, delta=0.01)
+        self.assertAlmostEqual(result["back_balance"], expected_balance, delta=0.01)
         self.assertAlmostEqual(lay_bet.stake, expected_lay_stake, delta=0.01)
         
 
@@ -29,10 +32,9 @@ class TestBackLayNormalCalculator(unittest.TestCase):
 
         expected_lay_stake = 53.57
         expected_risk = 96.43
+        expected_balance = 3.57
+        
         self.assertAlmostEqual(result["lay_stake"], expected_lay_stake, delta=0.01)
         self.assertAlmostEqual(result["risk"], expected_risk, delta=0.01)
+        self.assertAlmostEqual(result["back_balance"], expected_balance, delta=0.01)
         self.assertAlmostEqual(lay_bet.stake, expected_lay_stake, delta=0.01)
-        
-
-if __name__ == "__main__":
-    unittest.main()

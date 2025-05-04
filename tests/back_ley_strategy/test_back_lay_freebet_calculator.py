@@ -14,8 +14,11 @@ class TestBackLayFreebetCalculator(unittest.TestCase):
 
         expected_lay_stake = 69.34
         expected_risk = 312.03
+        expected_balance = 67.96
+        
         self.assertAlmostEqual(result["lay_stake"], expected_lay_stake,delta=0.01)
         self.assertAlmostEqual(result["risk"], expected_risk, delta=0.01)
+        self.assertAlmostEqual(result["back_balance"], expected_balance, delta=0.01)
         self.assertAlmostEqual(lay_bet.stake, expected_lay_stake, delta=0.01)
 
     def test_calculate_lay_stake_no_fees(self):
@@ -28,9 +31,9 @@ class TestBackLayFreebetCalculator(unittest.TestCase):
 
         expected = 35.71
         expected_risk = 64.28
+        expected_balance = 35.71
+        
         self.assertAlmostEqual(result["lay_stake"], expected, delta=0.01)
         self.assertAlmostEqual(result["risk"], expected_risk, delta=0.01)
+        self.assertAlmostEqual(result["back_balance"], expected_balance, delta=0.01)
         self.assertAlmostEqual(lay_bet.stake, expected, delta=0.01)
-
-if __name__ == "__main__":
-    unittest.main()
