@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
-from bet import Bet
+from matched_betting_calculator.bet import Bet
 
 class CalculatorBase(ABC):
     @abstractmethod

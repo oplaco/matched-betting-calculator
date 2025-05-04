@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
-from base import CalculatorBase
-from bet import BackLeyGroup
+from matched_betting_calculator.base import CalculatorBase
+from matched_betting_calculator.bet import BackLayGroup
 import sympy as sp
 
 class BackLayBaseCalculator(CalculatorBase):
@@ -10,7 +10,7 @@ class BackLayBaseCalculator(CalculatorBase):
     _back_balance_expr = None
     _lay_balance_expr = None
      
-    def __init__(self,back_ley_group:BackLeyGroup):
+    def __init__(self,back_ley_group:BackLayGroup):
         self.bb =back_ley_group.back_bet
         self.lb =back_ley_group.lay_bet
     
@@ -89,11 +89,11 @@ class BackLayFreebetCalculator(BackLayBaseCalculator):
         return self.lay_stake * (1 - self.lb_fee / 100) 
     
 class BackLayReimbursementCalculator(BackLayBaseCalculator):
-    def __init__(self, back_ley_group:BackLeyGroup, reimbursement:float):
+    def __init__(self, back_ley_group:BackLayGroup, reimbursement:float):
         """Calculator for reimbursement promotions.
 
         Args:
-            back_ley_group (BackLeyGroup): 
+            back_ley_group (BackLayGroup): 
             reimbursement (float): Amount that is going to be received if the back_bet is lost. 
             For example a FB 10€ will result in 7.5€ (assuming 75% freebet retention) therefore reimbursement=7.5
         """
@@ -119,11 +119,11 @@ class BackLayReimbursementCalculator(BackLayBaseCalculator):
         return self.lay_stake * (1 - self.lb_fee / 100) - self.bb_stake + self.reimbursement_sy
     
 class BackLayRolloverCalculator(BackLayBaseCalculator):
-    def __init__(self, back_ley_group:BackLeyGroup, bonus_amount:float, remaining_rollover:float,expected_rating:float):
+    def __init__(self, back_ley_group:BackLayGroup, bonus_amount:float, remaining_rollover:float,expected_rating:float):
         """Calculator for rollover promotions.
 
         Args:
-            back_ley_group (BackLeyGroup): 
+            back_ley_group (BackLayGroup): 
             bonus_amount (float): amount of the Back Bet stake made of bonus_amount balance.
             remaining_rollover (float): Remaining rollover (not taking into account back_bet_real stake and back_bet_bonus_amount stake).
             expected_rating (float): Expected rating at which the remaining rollover will be freed (e.g 95.06%).

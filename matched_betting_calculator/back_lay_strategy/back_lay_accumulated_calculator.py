@@ -1,11 +1,11 @@
 from abc import abstractmethod
 from typing import Dict, Any
-from base import CalculatorBase
-from bet import BackLeyGroup
+from matched_betting_calculator.base import CalculatorBase
+from matched_betting_calculator.bet import BackLayGroup
 import sympy as sp
 
 class BackLayAccumulatedBaseCalculator(CalculatorBase):
-    def __init__(self, combo_stake: float, combo_fee: float, back_ley_groups: list[BackLeyGroup]):
+    def __init__(self, combo_stake: float, combo_fee: float, back_ley_groups: list[BackLayGroup]):
         self.combo_stake = combo_stake
         self.combo_fee = combo_fee
         self.back_ley_groups = back_ley_groups
@@ -110,7 +110,7 @@ class BackLayAccumulatedFreebetCalculator(BackLayAccumulatedBaseCalculator):
         return eq
     
 class BackLayAccumulatedReimbursementCalculator(BackLayAccumulatedBaseCalculator):
-    def __init__(self, combo_stake: float, combo_fee: float, back_ley_groups: list[BackLeyGroup], reimbursement: float):
+    def __init__(self, combo_stake: float, combo_fee: float, back_ley_groups: list[BackLayGroup], reimbursement: float):
         super().__init__(combo_stake, combo_fee, back_ley_groups)
         self.reimbursement = reimbursement
         

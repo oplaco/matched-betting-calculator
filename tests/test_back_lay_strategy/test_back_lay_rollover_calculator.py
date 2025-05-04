@@ -1,5 +1,5 @@
 import unittest
-from bet import Bet, BackLeyGroup
+from matched_betting_calculator.bet import Bet, BackLayGroup
 from matched_betting_calculator.back_lay_strategy.back_lay_simple_calculator import BackLayRolloverCalculator
 
 class TestBackLayRolloverCalculator(unittest.TestCase):
@@ -7,7 +7,7 @@ class TestBackLayRolloverCalculator(unittest.TestCase):
     def test_calculate_lay_stake_basic(self):
         back_bet = Bet(odds=2, stake=100, fee=5.0)
         lay_bet = Bet(odds=2.1, fee=2.0)
-        back_lay_group = BackLeyGroup(back_bet,lay_bet)
+        back_lay_group = BackLayGroup(back_bet,lay_bet)
         bonus_amount = 100
         remaining_rollover = 1000
         expected_rating = 95
@@ -27,7 +27,7 @@ class TestBackLayRolloverCalculator(unittest.TestCase):
     def test_calculate_lay_stake_no_fees(self):
         back_bet = Bet(odds=2, stake=300)
         lay_bet = Bet(odds=2.1)
-        back_lay_group = BackLeyGroup(back_bet,lay_bet)
+        back_lay_group = BackLayGroup(back_bet,lay_bet)
         bonus_amount = 150
         remaining_rollover = 2000
         expected_rating = 90

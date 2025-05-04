@@ -15,7 +15,7 @@ class Bet:
         if not (0 <= self.fee <= 100):
             raise ValueError("Fee must be between 0 and 100.")
     
-class BackLeyGroup:
+class BackLayGroup:
     """Represents the Back bet - Lay Bet group used in the Back-Ley strategy.
     """
     def __init__(self,back_bet:Bet,lay_bet:Bet):

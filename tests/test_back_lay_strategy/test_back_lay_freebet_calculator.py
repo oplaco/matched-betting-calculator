@@ -1,5 +1,5 @@
 import unittest
-from bet import Bet, BackLeyGroup
+from matched_betting_calculator.bet import Bet, BackLayGroup
 from matched_betting_calculator.back_lay_strategy.back_lay_simple_calculator import BackLayFreebetCalculator
 
 class TestBackLayFreebetCalculator(unittest.TestCase):
@@ -7,7 +7,7 @@ class TestBackLayFreebetCalculator(unittest.TestCase):
     def test_calculate_lay_stake_basic(self):
         back_bet = Bet(odds=5.0, stake=100, fee=5.0)
         lay_bet = Bet(odds=5.5, fee=2.0)
-        back_lay_group = BackLeyGroup(back_bet,lay_bet)
+        back_lay_group = BackLayGroup(back_bet,lay_bet)
 
         calc = BackLayFreebetCalculator(back_lay_group)
         result = calc.calculate_stake()
@@ -24,7 +24,7 @@ class TestBackLayFreebetCalculator(unittest.TestCase):
     def test_calculate_lay_stake_no_fees(self):
         back_bet = Bet(odds=3.0, stake=50, fee=0.0)
         lay_bet = Bet(odds=2.8, fee=0.0)
-        back_lay_group = BackLeyGroup(back_bet,lay_bet)
+        back_lay_group = BackLayGroup(back_bet,lay_bet)
 
         calc = BackLayFreebetCalculator(back_lay_group)
         result = calc.calculate_stake()

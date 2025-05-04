@@ -1,5 +1,5 @@
 import unittest
-from bet import Bet, DutchingGroup
+from matched_betting_calculator.bet import Bet, DutchingGroup
 from matched_betting_calculator.dutching_strategy.dutching_simple_calculator import DutchingNormalCalculator
 
 class TestDutchingNormalCalculator(unittest.TestCase):

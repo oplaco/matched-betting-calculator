@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
-from base import CalculatorBase
-from bet import DutchingGroup
+from matched_betting_calculator.base import CalculatorBase
+from matched_betting_calculator.bet import DutchingGroup
 import sympy as sp
 
 
