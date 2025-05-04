@@ -102,7 +102,7 @@ class BackLayAccumulatedFreebetCalculator(BackLayAccumulatedBaseCalculator):
         return eq
     
     def build_final_equation(self, total_odds, lay_stakes, balance, n):
-        # On a freebet fees apply only to the net ammount.
+        # On a freebet fees apply only to the net amount.
         eq = self.combo_stake * (total_odds - 1) * (1-self.combo_fee/100)\
             - sum([lay_stakes[i] * (self.back_ley_groups[i].lay_bet.odds - 1) for i in range(n)]) \
             - balance

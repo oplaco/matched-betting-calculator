@@ -1,8 +1,8 @@
 import unittest
 from bet import Bet, DutchingGroup
-from dutching_strategy.dutching_simple_calculator import DutchingNormalCalculator
+from dutching_strategy.dutching_simple_calculator import DutchingFreebetCalculator
 
-class TestDutchingNormalCalculator(unittest.TestCase):
+class TestDutchingFreebetCalculator(unittest.TestCase):
 
     def test_calculate_dutching_stakes_no_fees(self):
         main_back_bet = Bet(odds=3.0, stake=100.0)
@@ -12,11 +12,11 @@ class TestDutchingNormalCalculator(unittest.TestCase):
         
         dutching_group = DutchingGroup(main_back_bet,db)
         
-        calc = DutchingNormalCalculator(dutching_group)
+        calc = DutchingFreebetCalculator(dutching_group)
         result = calc.calculate_stake()
 
-        expected_dutching_stake = [176.47,20]
-        expected_overall_balance = 3.53
+        expected_dutching_stake = [117.65,13.33]
+        expected_overall_balance = 69.02
         
         for i in range(len(db)):
             self.assertAlmostEqual(result[f"dutching_bet_{i}_stake"], expected_dutching_stake[i], delta=0.01)
@@ -31,11 +31,11 @@ class TestDutchingNormalCalculator(unittest.TestCase):
         
         dutching_group = DutchingGroup(main_back_bet,db)
         
-        calc = DutchingNormalCalculator(dutching_group)
+        calc = DutchingFreebetCalculator(dutching_group)
         result = calc.calculate_stake()
 
-        expected_dutching_stake = [161.22]
-        expected_overall_balance = -22.47
+        expected_dutching_stake = [107.48]
+        expected_overall_balance = 35.02
         
         for i in range(len(db)):
             self.assertAlmostEqual(result[f"dutching_bet_{i}_stake"], expected_dutching_stake[i], delta=0.01)

@@ -103,8 +103,92 @@ class DutchingSimpleCalculator(CalculatorBase, ABC):
 class DutchingNormalCalculator(DutchingSimpleCalculator):
     def build_main_back_balance_expr(self):
         rest_dutching_stakes = self.get_rest_dutching_stakes_expr()
+        return self.bb_stake * (self.bb_odds * (1 - self.bb_fee / 100)- 1) \
+            - rest_dutching_stakes - self.balance_sym
+
+    def build_back_balance_expr(self, i: int):
+        rest_dutching_stakes = self.get_rest_dutching_stakes_expr(i)     
+        return self.db_stake_syms[i] * (self.db_odds_syms[i] * (1 - self.db_fee_syms[i] / 100) - 1) \
+            - self.bb_stake - rest_dutching_stakes- self.balance_sym
+
+class DutchingFreebetCalculator(DutchingSimpleCalculator):
+    def build_main_back_balance_expr(self):
+        rest_dutching_stakes = self.get_rest_dutching_stakes_expr()
+        return self.bb_stake * (self.bb_odds - 1) * (1 - self.bb_fee / 100) \
+            - rest_dutching_stakes - self.balance_sym
+
+    def build_back_balance_expr(self, i: int):
+        rest_dutching_stakes = self.get_rest_dutching_stakes_expr(i)     
+        return self.db_stake_syms[i] * (self.db_odds_syms[i] * (1 - self.db_fee_syms[i] / 100) - 1) \
+            - rest_dutching_stakes- self.balance_sym
+    
+class DutchingReimbursementCalculator(DutchingSimpleCalculator):
+    def __init__(self, dutching_group: DutchingGroup, reimbursement:float):
+        """Calculator for reimbursement promotions.
+
+        Args:
+            dutching_group (DutchingGroup): 
+            reimbursement (float): Amount that is going to be received if the back_bet is lost. 
+            For example a FB 10€ will result in 7.5€ (assuming 75% freebet retention) therefore reimbursement=7.5
+        """
+        self.reimbursement = reimbursement
+        super().__init__(dutching_group)
+        
+    def create_symbolic_variables(self):
+        super().create_symbolic_variables()
+        self.reimbursement_sym = sp.Symbol('reimbursement_sym')
+        
+    def get_subs(self) -> dict:
+        subs = super().get_subs()
+        subs[self.reimbursement_sym] = self.reimbursement
+        return subs
+        
+    def build_main_back_balance_expr(self):
+        rest_dutching_stakes = self.get_rest_dutching_stakes_expr()
         return self.bb_stake * (self.bb_odds * (1 - self.bb_fee / 100)- 1) - rest_dutching_stakes - self.balance_sym
 
     def build_back_balance_expr(self, i: int):
         rest_dutching_stakes = self.get_rest_dutching_stakes_expr(i)     
-        return self.db_stake_syms[i] * (self.db_odds_syms[i] * (1 - self.db_fee_syms[i] / 100) - 1) - self.bb_stake - rest_dutching_stakes- self.balance_sym
+        return self.db_stake_syms[i] * (self.db_odds_syms[i] * (1 - self.db_fee_syms[i] / 100) - 1) \
+            - self.bb_stake - rest_dutching_stakes- self.balance_sym \
+            + self.reimbursement_sym
+            
+            
+class DutchingRolloverCalculator(DutchingSimpleCalculator):
+    def __init__(self, dutching_group: DutchingGroup, bonus_amount:float, remaining_rollover:float,expected_rating:float):
+        """Calculator for reimbursement promotions.
+
+        Args:
+            dutching_group (DutchingGroup): 
+            bonus_amount (float): amount of the Back Bet stake made of bonus_amount balance.
+            remaining_rollover (float): Remaining rollover (not taking into account back_bet_real stake and back_bet_bonus_amount stake).
+            expected_rating (float): Expected rating at which the remaining rollover will be freed (e.g 95.06%).
+        """
+        self.bonus_amount = bonus_amount
+        self.remaining_rollover = remaining_rollover
+        self.expected_rating = expected_rating
+        super().__init__(dutching_group)
+        
+    def create_symbolic_variables(self):
+        super().create_symbolic_variables()
+        self.bonus_amount_sym = sp.Symbol('bonus_amount_sym')
+        self.remaining_rollover_sym = sp.Symbol('remaining_rollover_sym')
+        self.expected_rating_sym = sp.Symbol('expected_rating_sym')
+        
+    def get_subs(self) -> dict:
+        subs = super().get_subs()
+        subs[self.bonus_amount_sym] = self.bonus_amount
+        subs[self.remaining_rollover_sym] = self.remaining_rollover
+        subs[self.expected_rating_sym] = self.expected_rating
+        return subs
+        
+    def build_main_back_balance_expr(self):
+        rollover_penalty = (self.remaining_rollover_sym-self.bb_stake-self.bonus_amount_sym)*(1-self.expected_rating_sym/100)
+        rest_dutching_stakes = self.get_rest_dutching_stakes_expr()
+        return (self.bb_stake +self.bonus_amount_sym)* self.bb_odds * (1-self.bb_fee / 100) \
+            - self.bb_stake - rest_dutching_stakes - rollover_penalty- self.balance_sym 
+
+    def build_back_balance_expr(self, i: int):
+        rest_dutching_stakes = self.get_rest_dutching_stakes_expr(i)     
+        return self.db_stake_syms[i] * (self.db_odds_syms[i] * (1 - self.db_fee_syms[i] / 100) - 1) \
+            - self.bb_stake - rest_dutching_stakes- self.balance_sym

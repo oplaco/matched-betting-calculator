@@ -82,7 +82,7 @@ class BackLayNormalCalculator(BackLayBaseCalculator):
 
 class BackLayFreebetCalculator(BackLayBaseCalculator):
     def build_back_balance_expr(self):
-        # The back bet fee only applys to the money returned (and the freebet ammount is not returned by definition.)
+        # The back bet fee only applys to the money returned (and the freebet amount is not returned by definition.)
         return self.bb_stake * (self.bb_odds-1) * (1 - self.bb_fee / 100)- self.lay_stake * (self.lb_odds - 1)
     
     def build_lay_balance_expr(self):
@@ -124,7 +124,7 @@ class BackLayRolloverCalculator(BackLayBaseCalculator):
 
         Args:
             back_ley_group (BackLeyGroup): 
-            bonus_amount (float): Ammount of the Back Bet stake made of bonus_amount balance.
+            bonus_amount (float): amount of the Back Bet stake made of bonus_amount balance.
             remaining_rollover (float): Remaining rollover (not taking into account back_bet_real stake and back_bet_bonus_amount stake).
             expected_rating (float): Expected rating at which the remaining rollover will be freed (e.g 95.06%).
         """
