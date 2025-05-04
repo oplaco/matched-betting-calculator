@@ -23,8 +23,10 @@ class BackLeyGroup:
         self.lay_bet = lay_bet
         
 class DutchingGroup:
-    """Represents the dutching group of n bets used in the dutching strategy.
+    """Represents the dutching group consisting of a main back bet and
+    a group of n bets used in the dutching strategy to lay the main one.
     """
-    def __init__(self,back_bets:list[Bet]):
-        self.back_bets = back_bets
+    def __init__(self,back_bet:Bet,dutching_bets:list[Bet]):
+        self.back_bet = back_bet
+        self.dutching_bets = dutching_bets
         
