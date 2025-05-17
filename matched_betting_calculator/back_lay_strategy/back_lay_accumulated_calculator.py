@@ -4,23 +4,33 @@ from matched_betting_calculator.base import CalculatorBase
 from matched_betting_calculator.bet import BackLayGroup
 import sympy as sp
 
+
 class BackLayAccumulatedBaseCalculator(CalculatorBase):
-    def __init__(self, combo_stake: float, combo_fee: float, back_ley_groups: list[BackLayGroup]):
+    def __init__(
+        self, combo_stake: float, combo_fee: float, back_ley_groups: list[BackLayGroup]
+    ):
         self.combo_stake = combo_stake
         self.combo_fee = combo_fee
         self.back_ley_groups = back_ley_groups
         self.combo_size = len(back_ley_groups)
-        
+
     @abstractmethod
     def build_individual_equation(self, i, lay_stakes, balance):
         pass
-    
+
     def build_final_equation(self, total_odds, lay_stakes, balance, n):
-        eq = self.combo_stake * (total_odds*(1-self.combo_fee/100) - 1)\
-            - sum([lay_stakes[i] * (self.back_ley_groups[i].lay_bet.odds - 1) for i in range(n)]) \
-            - balance       
+        eq = (
+            self.combo_stake * (total_odds * (1 - self.combo_fee / 100) - 1)
+            - sum(
+                [
+                    lay_stakes[i] * (self.back_ley_groups[i].lay_bet.odds - 1)
+                    for i in range(n)
+                ]
+            )
+            - balance
+        )
         return eq
-    
+
     def create_equations(self):
         # Number of bets in the combo
         n = len(self.back_ley_groups)
@@ -29,7 +39,7 @@ class BackLayAccumulatedBaseCalculator(CalculatorBase):
         lay_stakes = [sp.symbols(f"lb{i+1}") for i in range(n)]
 
         # balance constant
-        balance = sp.symbols('balance')
+        balance = sp.symbols("balance")
 
         # Create equations
         equations = []
@@ -72,53 +82,95 @@ class BackLayAccumulatedBaseCalculator(CalculatorBase):
 
             risk = round(lay_stakes_solution[i] * (lb.odds - 1), 2)
 
-            result.append({
-                "event_index": i,
-                "lay_stake": round(lay_stakes_solution[i], 2),
-                "risk": risk,
-                "expected_back_return": round(current_back_return, 2)
-            })
+            result.append(
+                {
+                    "event_index": i,
+                    "lay_stake": round(lay_stakes_solution[i], 2),
+                    "risk": risk,
+                    "expected_back_return": round(current_back_return, 2),
+                }
+            )
 
-        return {"accumulated_lay_bets": result}
+        # Format results using the base class method
+        return self._format_results({"accumulated_lay_bets": result})
+
 
 class BackLayAccumulatedNormalCalculator(BackLayAccumulatedBaseCalculator):
     def build_individual_equation(self, i, lay_stakes, balance):
         group = self.back_ley_groups[i]
         lb = group.lay_bet
-        eq = lay_stakes[i] * (1 - lb.fee / 100) \
-            - sum([lay_stakes[j] * (self.back_ley_groups[j].lay_bet.odds - 1) for j in range(i)]) \
-            - self.combo_stake - balance
-             
+        eq = (
+            lay_stakes[i] * (1 - lb.fee / 100)
+            - sum(
+                [
+                    lay_stakes[j] * (self.back_ley_groups[j].lay_bet.odds - 1)
+                    for j in range(i)
+                ]
+            )
+            - self.combo_stake
+            - balance
+        )
+
         return eq
-    
+
+
 class BackLayAccumulatedFreebetCalculator(BackLayAccumulatedBaseCalculator):
     def build_individual_equation(self, i, lay_stakes, balance):
         group = self.back_ley_groups[i]
         lb = group.lay_bet
-        eq = lay_stakes[i] * (1 - lb.fee / 100) \
-            - sum([lay_stakes[j] * (self.back_ley_groups[j].lay_bet.odds - 1) for j in range(i)]) \
+        eq = (
+            lay_stakes[i] * (1 - lb.fee / 100)
+            - sum(
+                [
+                    lay_stakes[j] * (self.back_ley_groups[j].lay_bet.odds - 1)
+                    for j in range(i)
+                ]
+            )
             - balance
-             
+        )
+
         return eq
-    
+
     def build_final_equation(self, total_odds, lay_stakes, balance, n):
         # On a freebet fees apply only to the net amount.
-        eq = self.combo_stake * (total_odds - 1) * (1-self.combo_fee/100)\
-            - sum([lay_stakes[i] * (self.back_ley_groups[i].lay_bet.odds - 1) for i in range(n)]) \
+        eq = (
+            self.combo_stake * (total_odds - 1) * (1 - self.combo_fee / 100)
+            - sum(
+                [
+                    lay_stakes[i] * (self.back_ley_groups[i].lay_bet.odds - 1)
+                    for i in range(n)
+                ]
+            )
             - balance
-            
+        )
+
         return eq
-    
+
+
 class BackLayAccumulatedReimbursementCalculator(BackLayAccumulatedBaseCalculator):
-    def __init__(self, combo_stake: float, combo_fee: float, back_ley_groups: list[BackLayGroup], reimbursement: float):
+    def __init__(
+        self,
+        combo_stake: float,
+        combo_fee: float,
+        back_ley_groups: list[BackLayGroup],
+        reimbursement: float,
+    ):
         super().__init__(combo_stake, combo_fee, back_ley_groups)
         self.reimbursement = reimbursement
-        
+
     def build_individual_equation(self, i, lay_stakes, balance):
         group = self.back_ley_groups[i]
         lb = group.lay_bet
-        eq = lay_stakes[i] * (1 - lb.fee / 100) \
-            - sum([lay_stakes[j] * (self.back_ley_groups[j].lay_bet.odds - 1) for j in range(i)]) \
-            - balance - self.reimbursement
-             
+        eq = (
+            lay_stakes[i] * (1 - lb.fee / 100)
+            - sum(
+                [
+                    lay_stakes[j] * (self.back_ley_groups[j].lay_bet.odds - 1)
+                    for j in range(i)
+                ]
+            )
+            - balance
+            - self.reimbursement
+        )
+
         return eq
