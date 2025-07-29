@@ -2,7 +2,7 @@
 Factory for creating calculator instances.
 """
 
-from typing import Dict, Any, Union, List, Optional, Type
+from typing import Dict, Any, List, Type, Tuple
 
 from matched_betting_calculator.base import CalculatorBase
 from matched_betting_calculator.bet import BackLayGroup, DutchingGroup
@@ -55,33 +55,12 @@ class CalculatorFactory:
             ),
         }
 
-        # Check if the calculator type is valid
-        if calculator_type not in calculator_map:
-            valid_types = ", ".join(calculator_map.keys())
-            raise ConfigurationError(
-                f"Invalid calculator type: {calculator_type}",
-                f"Valid types are: {valid_types}",
-            )
-
-        # Get calculator class and required parameters
-        calculator_class, required_params = calculator_map[calculator_type]
-
-        # Check if all required parameters are provided
-        missing_params = [
-            param for param in required_params if kwargs.get(param) is None
-        ]
-        if missing_params:
-            missing_params_str = ", ".join(missing_params)
-            raise ConfigurationError(
-                f"Missing required parameters for {calculator_type} calculator",
-                f"Required parameters: {missing_params_str}",
-            )
-
-        # Extract the needed parameters
-        param_values = [kwargs[param] for param in required_params]
-
-        # Create and return calculator instance
-        return calculator_class(back_lay_group, *param_values)
+        return CalculatorFactory._create_calculator_from_map(
+            calculator_type,
+            calculator_map,
+            [back_lay_group],
+            kwargs
+        )
 
     @staticmethod
     def create_dutching_calculator(
@@ -121,33 +100,12 @@ class CalculatorFactory:
             ),
         }
 
-        # Check if the calculator type is valid
-        if calculator_type not in calculator_map:
-            valid_types = ", ".join(calculator_map.keys())
-            raise ConfigurationError(
-                f"Invalid calculator type: {calculator_type}",
-                f"Valid types are: {valid_types}",
-            )
-
-        # Get calculator class and required parameters
-        calculator_class, required_params = calculator_map[calculator_type]
-
-        # Check if all required parameters are provided
-        missing_params = [
-            param for param in required_params if kwargs.get(param) is None
-        ]
-        if missing_params:
-            missing_params_str = ", ".join(missing_params)
-            raise ConfigurationError(
-                f"Missing required parameters for {calculator_type} calculator",
-                f"Required parameters: {missing_params_str}",
-            )
-
-        # Extract the needed parameters
-        param_values = [kwargs[param] for param in required_params]
-
-        # Create and return calculator instance
-        return calculator_class(dutching_group, *param_values)
+        return CalculatorFactory._create_calculator_from_map(
+            calculator_type,
+            calculator_map,
+            [dutching_group],
+            kwargs
+        )
 
     @staticmethod
     def create_accumulated_calculator(
@@ -190,7 +148,21 @@ class CalculatorFactory:
             ),
         }
 
-        # Check if the calculator type is valid
+        return CalculatorFactory._create_calculator_from_map(
+            calculator_type,
+            calculator_map,
+            [combo_stake, combo_fee, back_lay_groups],
+            kwargs
+        )
+
+    @staticmethod
+    def _create_calculator_from_map(
+        calculator_type: str,
+        calculator_map: Dict[str, Tuple[Type[CalculatorBase], List[str]]],
+        init_args: List[Any],
+        kwargs: Dict[str, Any],
+    ) -> CalculatorBase:
+        # Validate calculator type
         if calculator_type not in calculator_map:
             valid_types = ", ".join(calculator_map.keys())
             raise ConfigurationError(
@@ -198,10 +170,9 @@ class CalculatorFactory:
                 f"Valid types are: {valid_types}",
             )
 
-        # Get calculator class and required parameters
         calculator_class, required_params = calculator_map[calculator_type]
 
-        # Check if all required parameters are provided
+        # Validate required parameters
         missing_params = [
             param for param in required_params if kwargs.get(param) is None
         ]
@@ -212,8 +183,6 @@ class CalculatorFactory:
                 f"Required parameters: {missing_params_str}",
             )
 
-        # Extract the needed parameters
+        # Collect all parameters and instantiate
         param_values = [kwargs[param] for param in required_params]
-
-        # Create and return calculator instance with common parameters
-        return calculator_class(combo_stake, combo_fee, back_lay_groups, *param_values)
+        return calculator_class(*init_args, *param_values)
