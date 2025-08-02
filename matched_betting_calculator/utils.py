@@ -5,6 +5,7 @@ Utility functions for the matched betting calculator.
 from typing import Dict, Any, List, Tuple
 import sympy as sp
 from matched_betting_calculator.constants import PercentageConstants
+from matched_betting_calculator.errors import MatchedBettingError
 
 
 class SymbolicMathHelper:
