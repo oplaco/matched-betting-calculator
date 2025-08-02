@@ -18,15 +18,15 @@ from matched_betting_calculator.back_lay_strategy.back_lay_simple_calculator imp
 
 
 def main():
-    back_bet = Bet(odds=2.0, stake=10, fee=5)  
-    lay_bet = Bet(odds=2.1, fee=2.0) 
+    back_bet = Bet(odds=2.0, stake=10, fee=5)
+    lay_bet = Bet(odds=2.1, fee=2.0)
     back_lay_group = BackLayGroup(back_bet, lay_bet)
     calc = BackLayNormalCalculator(back_lay_group)
 
     result = calc.calculate_stake()
     print("Lay Stake:", result["lay_stake"])
     print("Risk:", result["risk"])
-    print("Lay Balance:", result["lay_balance"] )
+    print("Lay Balance:", result["lay_balance"])
 
 
 if __name__ == "__main__":

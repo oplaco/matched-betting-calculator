@@ -24,14 +24,15 @@ def main():
     bonus_ammount = 0
     remaining_rollover = 1200
     expected_rating = 94
-    calc = BackLayRolloverCalculator(back_lay_group,bonus_ammount,remaining_rollover,expected_rating)
+    calc = BackLayRolloverCalculator(
+        back_lay_group, bonus_ammount, remaining_rollover, expected_rating
+    )
 
     result = calc.calculate_stake()
     print("Lay Stake:", result["lay_stake"])
     print("Risk:", result["risk"])
     print("Back Balance", result["back_balance"])
     print("Lay Balance", result["lay_balance"])
-
 
 
 if __name__ == "__main__":
