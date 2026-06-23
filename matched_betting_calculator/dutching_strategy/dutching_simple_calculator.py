@@ -3,6 +3,7 @@ from typing import Dict, Any, Optional
 from matched_betting_calculator.base import CalculatorBase
 from matched_betting_calculator.bet import DutchingGroup
 from matched_betting_calculator.constants import PercentageConstants
+from matched_betting_calculator.errors import CalculationError
 import sympy as sp
 
 
@@ -11,24 +12,55 @@ class DutchingSimpleCalculator(CalculatorBase, ABC):
     The equations are solved assuming all the bets are equal to the same overall balance
     """
 
+    _cached_n_bets: Optional[int] = None
+    _cached_solution: Optional[Dict[sp.Symbol, sp.Expr]] = None
+    balance_sym = None
+    bb_odds = bb_fee = bb_stake = None
+    db_odds_syms = db_fee_syms = db_stake_syms = None
+
     def __init__(self, dutching_group: DutchingGroup):
         self.back_bet = dutching_group.back_bet
         self.dutching_bets = dutching_group.dutching_bets
         self.n_bets = len(self.dutching_bets)
-        self.create_symbolic_variables()
+        self.__class__._ensure_symbols(self.n_bets)
 
-    def create_symbolic_variables(self):
-        """Create symbolic variables for back bet and dutching bet's odds, fee, and stake."""
-        # For the overall balance.
-        self.balance_sym = sp.Symbol("balance")
+    @classmethod
+    def _ensure_symbols(cls, n_bets: int) -> None:
+        """Create symbolic variables once per calculator class and n_bets."""
+        if cls._cached_n_bets == n_bets and cls.balance_sym is not None:
+            return
 
-        # For the back bet (i.e the bet in the bookmaker where the promotional offer lies).
-        self.bb_odds, self.bb_fee, self.bb_stake = sp.symbols("bb_odds bb_fee bb_stake")
+        cls._cached_n_bets = n_bets
+        cls._cached_solution = None
+        cls.balance_sym = sp.Symbol("balance")
+        cls.bb_odds, cls.bb_fee, cls.bb_stake = sp.symbols("bb_odds bb_fee bb_stake")
+        cls.db_odds_syms = sp.symbols(f"db_odds0:{n_bets}")
+        cls.db_fee_syms = sp.symbols(f"db_fee0:{n_bets}")
+        cls.db_stake_syms = sp.symbols(f"db_stake0:{n_bets}")
 
-        # For each dutching bet.
-        self.db_odds_syms = sp.symbols(f"db_odds0:{self.n_bets}")
-        self.db_fee_syms = sp.symbols(f"db_fee0:{self.n_bets}")
-        self.db_stake_syms = sp.symbols(f"db_stake0:{self.n_bets}")
+    @classmethod
+    def _get_solution(cls, n_bets: int) -> Dict[sp.Symbol, sp.Expr]:
+        """Solve the equation system once per calculator class and n_bets."""
+        cls._ensure_symbols(n_bets)
+        if cls._cached_solution is not None:
+            return cls._cached_solution
+
+        obj = cls.__new__(cls)
+        obj.n_bets = n_bets
+
+        equations = [obj.build_main_back_balance_expr()]
+        for i in range(n_bets):
+            equations.append(obj.build_back_balance_expr(i))
+
+        unknowns = tuple(cls.db_stake_syms) + (cls.balance_sym,)
+        solution = sp.solve(equations, unknowns)
+        if not solution:
+            raise CalculationError(
+                "Failed to solve dutching equation system", "No solutions found"
+            )
+
+        cls._cached_solution = solution
+        return cls._cached_solution
 
     @abstractmethod
     def build_main_back_balance_expr(self):
@@ -75,46 +107,24 @@ class DutchingSimpleCalculator(CalculatorBase, ABC):
         Returns:
             Dictionary with calculated stakes and overall balance
         """
-
-        # List to store the equations for the backbet and all dutching bets (db_stake_0, db_stake_1, ..., db_stake_n).
-        equations = []
-
-        # Main back bet equation
-        main_balance_eq = self.build_main_back_balance_expr()
-        equations.append(main_balance_eq)
-
-        # Build the equations for all dutching bets
-        for i in range(self.n_bets):
-            eq = self.build_back_balance_expr(i)
-            equations.append(eq)
-
-        # Solve the system of equations for all db_stake_i and self.balance_sym at once.
-        solution = sp.solve(equations, tuple(self.db_stake_syms) + (self.balance_sym,))
-
-        # Substitute the symbolic variables with the actual values from the back bets
+        solution = self.__class__._get_solution(self.n_bets)
         subs = self.get_subs()
 
-        # Evaluate the solutions and round them
         result = {}
         for i, stake_symbol in enumerate(self.db_stake_syms):
-            # Evaluate the symbolic expression numerically
             stake_val_numeric = solution[stake_symbol].subs(subs).evalf()
             stake_rounded = round(stake_val_numeric, PercentageConstants.DECIMAL_PLACES)
 
-            # Store the stake in the result dictionary
             result[f"dutching_bet_{i}_stake"] = stake_rounded
 
-            # Assign the calculated stake to each dutching bet only if requested
             if apply_result_to_bet:
                 self.dutching_bets[i].stake = stake_rounded
 
-        # Add the overall balance (for all bets) to the result
         overall_balance_value = solution[self.balance_sym].subs(subs).evalf()
         result["overall_balance"] = round(
             overall_balance_value, PercentageConstants.DECIMAL_PLACES
         )
 
-        # Format results using the base class method
         return self._format_results(result)
 
 
@@ -173,9 +183,11 @@ class DutchingReimbursementCalculator(DutchingSimpleCalculator):
         self.reimbursement = reimbursement
         super().__init__(dutching_group)
 
-    def create_symbolic_variables(self):
-        super().create_symbolic_variables()
-        self.reimbursement_sym = sp.Symbol("reimbursement_sym")
+    @classmethod
+    def _ensure_symbols(cls, n_bets: int) -> None:
+        super()._ensure_symbols(n_bets)
+        if not hasattr(cls, "reimbursement_sym"):
+            cls.reimbursement_sym = sp.Symbol("reimbursement_sym")
 
     def get_subs(self) -> dict:
         subs = super().get_subs()
@@ -225,11 +237,13 @@ class DutchingRolloverCalculator(DutchingSimpleCalculator):
         self.expected_rating = expected_rating
         super().__init__(dutching_group)
 
-    def create_symbolic_variables(self):
-        super().create_symbolic_variables()
-        self.bonus_amount_sym = sp.Symbol("bonus_amount_sym")
-        self.remaining_rollover_sym = sp.Symbol("remaining_rollover_sym")
-        self.expected_rating_sym = sp.Symbol("expected_rating_sym")
+    @classmethod
+    def _ensure_symbols(cls, n_bets: int) -> None:
+        super()._ensure_symbols(n_bets)
+        if not hasattr(cls, "bonus_amount_sym"):
+            cls.bonus_amount_sym = sp.Symbol("bonus_amount_sym")
+            cls.remaining_rollover_sym = sp.Symbol("remaining_rollover_sym")
+            cls.expected_rating_sym = sp.Symbol("expected_rating_sym")
 
     def get_subs(self) -> dict:
         subs = super().get_subs()
