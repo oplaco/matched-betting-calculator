@@ -377,6 +377,73 @@ class BackLayReimbursementCalculator(BackLayBaseCalculator):
         )
 
 
+class BackLayWinBonusCalculator(BackLayBaseCalculator):
+    """Calculator for win-bonus promotions in back-lay strategy.
+
+    Mirror of the reimbursement offer: when the back bet wins, an extra bonus is
+    received on top of normal winnings; when the lay bet wins, there is no bonus.
+    """
+
+    def __init__(self, back_lay_group: BackLayGroup, win_bonus: float) -> None:
+        """
+        Initialize a win-bonus calculator.
+
+        Args:
+            back_lay_group: The back-lay bet group
+            win_bonus: Extra amount received when the back bet wins (e.g. a prize
+                       or promotional payout on top of normal winnings)
+
+        Raises:
+            ValidationError: If win_bonus is negative
+        """
+        if win_bonus < 0:
+            raise ValidationError(
+                "Win bonus must be non-negative", f"Provided value: {win_bonus}"
+            )
+
+        super().__init__(back_lay_group)
+        self.win_bonus = win_bonus
+
+        if not hasattr(self.__class__, "win_bonus_symbol"):
+            self.__class__.create_symbolic_variables()
+
+    @classmethod
+    def create_symbolic_variables(cls) -> None:
+        """Create symbolic variables including win bonus."""
+        super().create_symbolic_variables()
+        cls.win_bonus_symbol = sp.Symbol("win_bonus_symbol")
+
+    def get_subs(self) -> Dict[sp.Symbol, Any]:
+        """Get substitution values including win bonus."""
+        base_subs = super().get_subs()
+        base_subs[self.__class__.win_bonus_symbol] = self.win_bonus
+        return base_subs
+
+    def build_back_balance_expr(self) -> sp.Expr:
+        """Build expression for win-bonus offer where back bet wins."""
+        percent_divisor = sp.Integer(PercentageConstants.PERCENT_DIVISOR)
+
+        return (
+            self.back_bet_stake_symbol
+            * (
+                self.back_bet_odds_symbol
+                * (1 - self.back_bet_fee_symbol / percent_divisor)
+                - 1
+            )
+            - self.lay_stake_symbol * (self.lay_bet_odds_symbol - 1)
+            + self.win_bonus_symbol
+        )
+
+    def build_lay_balance_expr(self) -> sp.Expr:
+        """Build expression for win-bonus offer where lay bet wins (no bonus)."""
+        percent_divisor = sp.Integer(PercentageConstants.PERCENT_DIVISOR)
+
+        return (
+            self.lay_stake_symbol * (1 - self.lay_bet_fee_symbol / percent_divisor)
+            - self.back_bet_stake_symbol
+        )
+
+
 class BackLayRolloverCalculator(BackLayBaseCalculator):
     """Calculator for rollover promotions in back-lay strategy."""
 

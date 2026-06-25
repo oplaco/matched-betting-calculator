@@ -26,7 +26,7 @@ class CalculatorFactory:
 
         Args:
             calculator_type: Type of calculator to create ('normal', 'freebet',
-                            'reimbursement', or 'rollover')
+                            'reimbursement', 'win_bonus', or 'rollover')
             back_lay_group: The BackLayGroup for the calculation
             **kwargs: Additional parameters for specific calculator types
 
@@ -41,6 +41,7 @@ class CalculatorFactory:
             BackLayNormalCalculator,
             BackLayFreebetCalculator,
             BackLayReimbursementCalculator,
+            BackLayWinBonusCalculator,
             BackLayRolloverCalculator,
         )
 
@@ -49,6 +50,7 @@ class CalculatorFactory:
             "normal": (BackLayNormalCalculator, []),
             "freebet": (BackLayFreebetCalculator, []),
             "reimbursement": (BackLayReimbursementCalculator, ["reimbursement"]),
+            "win_bonus": (BackLayWinBonusCalculator, ["win_bonus"]),
             "rollover": (
                 BackLayRolloverCalculator,
                 ["bonus_amount", "remaining_rollover", "expected_rating"],
@@ -71,7 +73,7 @@ class CalculatorFactory:
 
         Args:
             calculator_type: Type of calculator to create ('normal', 'freebet',
-                            'reimbursement', or 'rollover')
+                            'reimbursement', 'win_bonus', or 'rollover')
             dutching_group: The DutchingGroup for the calculation
             **kwargs: Additional parameters for specific calculator types
 
@@ -86,6 +88,7 @@ class CalculatorFactory:
             DutchingNormalCalculator,
             DutchingFreebetCalculator,
             DutchingReimbursementCalculator,
+            DutchingWinBonusCalculator,
             DutchingRolloverCalculator,
         )
 
@@ -94,6 +97,7 @@ class CalculatorFactory:
             "normal": (DutchingNormalCalculator, []),
             "freebet": (DutchingFreebetCalculator, []),
             "reimbursement": (DutchingReimbursementCalculator, ["reimbursement"]),
+            "win_bonus": (DutchingWinBonusCalculator, ["win_bonus"]),
             "rollover": (
                 DutchingRolloverCalculator,
                 ["bonus_amount", "remaining_rollover", "expected_rating"],
@@ -186,3 +190,4 @@ class CalculatorFactory:
         # Collect all parameters and instantiate
         param_values = [kwargs[param] for param in required_params]
         return calculator_class(*init_args, *param_values)
+

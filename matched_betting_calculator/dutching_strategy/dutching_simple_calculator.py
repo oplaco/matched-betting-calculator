@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional
 from matched_betting_calculator.base import CalculatorBase
 from matched_betting_calculator.bet import DutchingGroup
 from matched_betting_calculator.constants import PercentageConstants
-from matched_betting_calculator.errors import CalculationError
+from matched_betting_calculator.errors import CalculationError, ValidationError
 import sympy as sp
 
 
@@ -216,6 +216,55 @@ class DutchingReimbursementCalculator(DutchingSimpleCalculator):
         )
 
 
+class DutchingWinBonusCalculator(DutchingSimpleCalculator):
+    def __init__(self, dutching_group: DutchingGroup, win_bonus: float):
+        """Calculator for win-bonus promotions.
+
+        Args:
+            dutching_group (DutchingGroup):
+            win_bonus (float): Extra amount received when the main back bet wins.
+        """
+        if win_bonus < 0:
+            raise ValidationError(
+                "Win bonus must be non-negative", f"Provided value: {win_bonus}"
+            )
+
+        self.win_bonus = win_bonus
+        super().__init__(dutching_group)
+
+    @classmethod
+    def _ensure_symbols(cls, n_bets: int) -> None:
+        super()._ensure_symbols(n_bets)
+        if not hasattr(cls, "win_bonus_sym"):
+            cls.win_bonus_sym = sp.Symbol("win_bonus_sym")
+
+    def get_subs(self) -> dict:
+        subs = super().get_subs()
+        subs[self.win_bonus_sym] = self.win_bonus
+        return subs
+
+    def build_main_back_balance_expr(self):
+        percent_divisor = sp.Integer(PercentageConstants.PERCENT_DIVISOR)
+        rest_dutching_stakes = self.get_rest_dutching_stakes_expr()
+        return (
+            self.bb_stake * (self.bb_odds * (1 - self.bb_fee / percent_divisor) - 1)
+            - rest_dutching_stakes
+            + self.win_bonus_sym
+            - self.balance_sym
+        )
+
+    def build_back_balance_expr(self, i: int):
+        percent_divisor = sp.Integer(PercentageConstants.PERCENT_DIVISOR)
+        rest_dutching_stakes = self.get_rest_dutching_stakes_expr(i)
+        return (
+            self.db_stake_syms[i]
+            * (self.db_odds_syms[i] * (1 - self.db_fee_syms[i] / percent_divisor) - 1)
+            - self.bb_stake
+            - rest_dutching_stakes
+            - self.balance_sym
+        )
+
+
 class DutchingRolloverCalculator(DutchingSimpleCalculator):
     def __init__(
         self,
@@ -278,3 +327,4 @@ class DutchingRolloverCalculator(DutchingSimpleCalculator):
             - rest_dutching_stakes
             - self.balance_sym
         )
+
